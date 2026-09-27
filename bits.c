@@ -2,7 +2,7 @@
  * CS:APP Data Lab 
  * 
  * <Please put your name and userid here>
- * 
+ * 孙岩骅 25800740056
  * bits.c - Source file with your solutions to the Lab.
  *          This is the file you will hand in to your instructor.
  *
@@ -146,7 +146,9 @@ NOTES:
  *   Rating: 1
  */
 int signMask(void) {
-  return 1;
+  int result = 1;
+  result = result << 31;
+  return result;
 }
 
 // P2
@@ -158,7 +160,9 @@ int signMask(void) {
  *   Rating: 2
  */
 int bitXor(int x, int y) {
-	return 2;
+  int result;
+  result = ~(~(x & ~y) & ~(~x & y));
+	return result;
 }
 
 // P3
@@ -170,7 +174,10 @@ int bitXor(int x, int y) {
  *   Rating: 3
  */
 int negativePart(int x){
-  return 3;
+  int result, check;
+  check = x >> 31;
+  result = ~(x & check) + 1;
+  return result;
 }
 
 
@@ -185,7 +192,12 @@ int negativePart(int x){
  *   Rating: 4
  */
 int copyByteWithin(int x, int src, int dst) {
-  return 4;
+  int carriage = 0xff, src_move = src << 3, dst_move = dst << 3;
+  int dup, rem, result;
+  dup = (x >> src_move & carriage) << dst_move;
+  rem = x & ~(carriage << dst_move);
+  result = dup + rem;
+  return result;
 }
 
 // P5
@@ -198,7 +210,10 @@ int copyByteWithin(int x, int src, int dst) {
  *   Rating: 4
  */
 int logicalShift(int x, int n) {
-  return 5;
+  int result = x >> n;
+  int mask = ((1 << 32 + ~n) + ~0 << 1) + 1;
+  result = result & mask;
+  return result;
 }
 
 // P6
@@ -210,7 +225,12 @@ int logicalShift(int x, int n) {
  *   Rating: 4
  */
 int swapNibblePairs(int x) {
-  return 6;
+  int F = 0xf;
+  int mask = (F << 24) + (F << 16) + (F << 8) + F;
+  int latter = x & mask;
+  int former = x >> 4 & mask;
+  int result = (latter << 4) + former;
+  return result;
 }
 
 // P7
@@ -223,7 +243,10 @@ int swapNibblePairs(int x) {
  *   Rating: 4
  */
 int secondLowestZeroBit(int x) {
-  return 7;
+  int clear, result;
+  clear = ~x + ~0 & ~x;
+  result = clear & ~clear + 1;
+  return result;
 }
 
 // P8
