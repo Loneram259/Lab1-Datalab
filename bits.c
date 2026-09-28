@@ -259,7 +259,13 @@ int secondLowestZeroBit(int x) {
  *   Rating: 5
  */
 int oddParity(int x) {
-  return 8;
+  x = x ^ x >> 16;
+  x = x ^ x >> 8;
+  x = x ^ x >> 4;
+  x = x ^ x >> 2;
+  x = x ^ x >> 1;
+  x = x + 1 & 1;
+  return x;
 }
 
 // P9
@@ -272,7 +278,14 @@ int oddParity(int x) {
  *   Rating: 5
  */
 int rotateRightBits(int x, int n) {
-  return 9;
+  n = n & 31;
+  int carriage = (1 << 31 >> n << 1);
+  int mov = 32 + ~n;
+  int latter = x << mov << 1;
+  int former = x >> n & ~carriage;
+  int result;
+  result = latter | former;
+  return result;
 }
 
 // P10
