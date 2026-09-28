@@ -278,12 +278,12 @@ int oddParity(int x) {
  *   Rating: 5
  */
 int rotateRightBits(int x, int n) {
+  int carriage, mov, latter, former, result;
   n = n & 31;
-  int carriage = (1 << 31 >> n << 1);
-  int mov = 32 + ~n;
-  int latter = x << mov << 1;
-  int former = x >> n & ~carriage;
-  int result;
+  carriage = (1 << 31 >> n << 1);
+  mov = 32 + ~n;
+  latter = x << mov << 1;
+  former = x >> n & ~carriage;
   result = latter | former;
   return result;
 }
@@ -300,7 +300,11 @@ int rotateRightBits(int x, int n) {
  *   Rating: 5
  */
 int roundEvenPow2(int x, int n) {
-  return 10;
+  int integer = x >> n;
+  int comparison = (1 << n >> 1) + ~(integer & 1) + 1;
+  int round = ~(x & (1 << n) + ~0) + comparison + 1 >> 31 & 1;
+  int result = round + integer << n;
+  return result;
 }
 
 // P11
@@ -316,7 +320,16 @@ int roundEvenPow2(int x, int n) {
  *   Rating: 5
  */
 int midpointTowardFirst(int x, int y) {
-  return 11;
+  int x_2 = x >> 1;
+  int y_2 = y >> 1;
+  int x_last = x & 1;
+  int y_last = y & 1;
+  int x_first = x >> 31 & 1;
+  int y_first = y >> 31 & 1;
+  int odd_odd = x_last & y_last;
+  int odd_even = (~x + y + 1 >> 31) & 1;
+  int result = x_2 + y_2 + odd_odd + ((x_last ^ y_last) & (!(x_first ^ y_first) & odd_even) + ((x_first ^ y_first) & y_first));
+  return result;
 }
 
 
