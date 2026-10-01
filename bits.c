@@ -343,7 +343,15 @@ int midpointTowardFirst(int x, int y) {
  *   Rating: 7
  */
 int isBetweenEitherOrder(int x, int a, int b) {
-  return 12;
+  int af = a >> 31 & 1;
+  int bf = b >> 31 & 1;
+  int xf = x >> 31 & 1;
+  int a_x = ((af ^ xf) & af) + (!(af ^ xf) & (a + ~x + 1 >> 31 & 1));
+  int b_x = ((bf ^ xf) & bf) + (!(bf ^ xf) & (b + ~x + 1 >> 31 & 1));
+  int a__x = !(a ^ x);
+  int b__x = !(b ^ x);
+  int result = (a_x ^ b_x) | a__x | b__x;
+  return result;
 }
 
 // P13
@@ -356,7 +364,16 @@ int isBetweenEitherOrder(int x, int a, int b) {
  *   Rating: 7
  */
 int mul5Sat(int x) {
-  return 13;
+  int x2 = x << 1;
+  int x3 = x2 << 1;
+  int x4 = x3 + x;
+  int xf = x >> 31 & 1;
+  int x2f = x2 >> 31 & 1;
+  int x3f = x3 >> 31 & 1;
+  int x4f = x4 >> 31 & 1;
+  int check = xf ^ x2f | xf ^ x3f | xf ^ x4f;
+  int result = (~!check + 1 & x4) + (!check + ~0 & (1 << 31) + ~0 + xf);
+  return result;
 }
 
 // P14
@@ -369,7 +386,17 @@ int mul5Sat(int x) {
  *   Rating: 7
  */
 int classifyAdd3(int x, int y, int z) {
-  return 14;
+  int s = x + y;
+  int t = s + z;
+  int xf = x >> 31 & 1;
+  int yf = y >> 31 & 1;
+  int zf = z >> 31 & 1;
+  int sf = s >> 31 & 1;
+  int tf = t >> 31 & 1;
+  int i = xf ^ yf ^ zf; /*0 if 2n1p ; 1 if 2p 1n*/
+  int all = xf ^ yf | yf ^ zf; /*0 if all p or all n*/
+  int result = ((~(!all & (xf ^ sf | xf ^ tf)) + 1) & (2 + ~(xf << 1))) + ((~(all & !(zf ^ sf | tf ^ i)) + 1) & ((i << 1) + ~0));
+  return result;
 }
 
 // P15
