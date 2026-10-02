@@ -413,7 +413,32 @@ int classifyAdd3(int x, int y, int z) {
  *   Rating: 7
  */
 unsigned floatScaleThreeHalves(unsigned uf) {
-  return 15;
+  int s = uf & 0x80000000, f = uf & 0x7fffff, e = uf & 0x7f800000;
+  int f_add = f + (f >> 1) + (f % 4 == 1);
+  int F_ADD = f_add + 0x400000;
+  int result;
+  if (e == 0x7f800000){
+    return uf;
+  }
+  else if (e == 0){
+    result = s + f_add;
+    return result;
+  }
+  else{
+    if (F_ADD >= 0x800000){
+      e += 0x800000;
+      F_ADD = (F_ADD >> 1) + ((F_ADD & 3) == 3);
+      F_ADD -= 0x400000;
+    }
+    if (e == 0x7f800000) {
+      result = s + e;
+      return result;
+    }
+    else{
+      result = s + e + F_ADD;
+      return result;
+    }
+  }
 }
 
 // P16
@@ -457,7 +482,21 @@ unsigned float_i2f(int x) {
  *   Rating: 10
  */
 int bitCount(int x) {
-  return 18;
+  int mask1 = 0X55, mask2 = 0x33, mask3 = 0xf, mask4 = 0xff;
+  int add1, add2, add3, add4, result;
+  mask1 = (mask1 << 8) + mask1;
+  mask1 = (mask1 << 16) + mask1;
+  add1 = (x & mask1) + (x >> 1 & mask1);
+  mask2 = (mask2 << 8) + mask2;
+  mask2 = (mask2 << 16) + mask2;
+  add2 = (add1 & mask2) + ((add1 >> 2) & mask2);
+  mask3 = (mask3 << 8) + mask3;
+  mask3 = (mask3 << 16) + mask3;
+  add3 = (add2 & mask3) + ((add2 >> 4) & mask3);
+  mask4 = (mask4 << 16) + mask4;
+  add4 = (add3 & mask4) + ((add3 >> 8) & mask4);
+  result = ((add4 >> 16) + add4) & 0xff;
+  return result;
 }
 
 // P19
@@ -469,7 +508,17 @@ int bitCount(int x) {
  *   Max ops: 34
  *   Rating: 10
  */
-int bitReverse(int x)
-{
-  return 19;
+int bitReverse(int x){
+  int mask1, mask2, mask3, result;
+  int mask4 = 0xff;
+  mask4 = (mask4 << 16) + mask4;
+  mask3 = mask4 << 4 ^ mask4;
+  mask2 = mask3 << 2 ^ mask3;
+  mask1 = mask2 << 1 ^ mask2;
+  x = (x >> 1 & mask1) | ((x & mask1) << 1);
+  x = (x >> 2 & mask2) | ((x & mask2) << 2);
+  x = (x >> 4 & mask3) | ((x & mask3) << 4);
+  x = (x >> 8 & mask4) | ((x & mask4) << 8);
+  result = (x >> 16 & 0xff + (0xff << 8)) | (x << 16);
+  return result;
 }
