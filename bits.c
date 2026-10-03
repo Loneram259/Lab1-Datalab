@@ -454,7 +454,44 @@ unsigned floatScaleThreeHalves(unsigned uf) {
  *   Rating: 10
  */
 unsigned floatRoundEven(unsigned uf) {
-  return 16;
+  int s = uf & 0x80000000, f = uf & 0x7fffff, e = uf & 0x7f800000;
+  int E = (e >> 23) - 127;
+  int fj, fr, f_j;
+  if (E >= 23)
+    return uf;
+  else if (E <= -2)
+    return s;
+  else if (E == -1){
+    if (f == 0)
+      return s;
+    else
+      return s | 0x3f800000;
+  }
+  else{
+    fr = f & ((1 << 22 - E) - 1);
+    fj = f & (1 << 22 - E);
+    if (E == 0){
+      if (fj == 0)
+        return uf - fr;
+      else
+        return s + e + (1 << 23);
+    }
+    else{
+      if (fj == 0)
+        return uf - fr;
+      else{
+        if (fr == 0){
+          f_j = (f >> 23 - E) & 1;
+          if (f_j == 0)
+            return uf - fj;
+          else
+            return uf + fj;
+        }
+        else
+          return uf - fr + fj;
+      }
+    }
+  }
 }
 
 // P17
@@ -468,7 +505,41 @@ unsigned floatRoundEven(unsigned uf) {
  *   Rating: 10
  */
 unsigned float_i2f(int x) {
-  return 17;
+  unsigned s = x & (1 << 31);
+  unsigned abs = x;
+  int h = 0;
+  unsigned temp, f, e;
+  int mov, f_round, f_remain, half;
+  if (x == 0)
+    return 0;
+  else{
+    if (x < 0)
+      abs = ~abs + 1;
+    temp = abs;
+    while (temp >> 1){
+      temp >>= 1;
+      h++;
+    }
+    e = (h + 127) << 23;
+    if (h <= 23 ){
+      f = (abs << (23 - h)) & 0x7fffff;
+      return s + e + f;
+    }
+    else{
+      mov = h - 23;
+      f_round = abs >> mov;
+      f_remain = abs & ((1 << mov) - 1);
+      half  = 1 << (mov - 1);
+      f_round = f_round + (f_remain + (f_round & 1) > half);
+      if (f_round == 0x1000000){
+        e += 1 << 23;
+        f = 0;
+      }
+      else
+        f = f_round & 0x7fffff;
+      return s + e + f;
+    }
+  }
 }
 
 
